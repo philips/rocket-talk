@@ -1,0 +1,12 @@
+%echo Generating a default key
+Key-Type: default
+Subkey-Type: default
+Name-Real: Kelsey Hightower
+Name-Comment: ACI signing key
+Name-Email: kelsey.hightower@coreos.com
+Expire-Date: 0
+Passphrase: rocket
+%pubring rocket.pub
+%secring rocket.sec
+%commit
+%echo done

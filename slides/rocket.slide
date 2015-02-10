@@ -1,0 +1,204 @@
+Rocket and the Application Container Spec
+PDXGo Meetup
+Tags: rocket, appc, golang
+
+Kelsey Hightower
+CoreOS
+kelsey.hightower@coreos.com
+@kelseyhightower
+
+* Goals
+
+- Provide an overview of Rocket and the Application Container Spec 
+- Live demonstration of packaging a Go application
+- Live demonstration of Rocket in action
+- Why containers are useful for Go binaries
+
+* Container
+
+Not golden images.
+
+- Unix processes not lightweight Virtual Machines
+- application + dependencies = image
+- Runtime environment (cgroups, namespaces, env vars)
+
+* App Container
+
+A new, open specification for running applications in containers
+
+- appc != rocket
+- github.com/appc
+- appc-dev@googlegroups.com
+
+* App Container Principles
+
+- Open
+- Simple 
+- Secure (Container identity, signing and encryption)
+- Standards Based (tar, gzip, gpg, http)
+- Composable (OS/arch agnostic, init systems)
+
+* App Container Components
+
+- Image format
+- Image discovery
+- Executor
+- Metadata server
+
+* App Container Image Format
+
+Tarball of rootfs and image manifest
+
+.code code/image-format.txt
+
+* App Container Image Format
+
+Uniquely identified by imageID (hash)
+
+  cat /var/lib/rkt/cas/remote/sha512/a7/sha512-a7fcbbfcc5777e5f51395...
+
+  {
+    "ACIURL": "http://example.com/images/example.com/hello-0.0.1-linux-amd64.aci",
+    "SigURL": "http://example.com/images/example.com/hello-0.0.1-linux-amd64.sig",
+    "ETag": "",
+    "BlobKey": "sha512-b8afcb8613ca6445e5139a61b41bf1bf37b57bac5d0d5fa7eb44407a70b18cf0"
+  }
+
+Uncompressed Tar:
+
+  /var/lib/rkt/cas/blob/sha512/b8/sha512-b8afcb8613ca6445e5139a61b41bf1bf37b57bac5d0d5fa7eb44407a70b18cf0
+
+* App Container Image Discovery
+
+Translates example.com/hello:0.0.1 into a downloadable image
+
+.code code/meta-discovery.html
+
+Artifacts:
+
+  https://example.com/hello-0.0.1.sig
+  https://example.com/hello-0.0.1.aci
+  https://example.com/pubkeys.gpg
+
+* Executor
+
+Container runtime environment
+
+- Isolators (cgroups, namespaces)
+- Networking
+
+* Metadata Server
+
+Container metadata and crypto identity
+
+- Gives a cryptographically verifiable identity to the container
+- Access to the container runtime manifest (annotations)
+- Access to the container uid
+
+Metadata URL:
+
+  $AC_METADATA_URL/acMetadata/v1/container
+
+* App Container Tooling
+
+- actool build
+- actool validate
+- actool discover
+
+* App Container in action
+
+* App Container Community
+
+- cdaylward/libappc
+- cdaylward/nosecone (C++ executor)
+- 3ofcoins/jetpack (FreeBSD Jails/ZFS executor)
+- appc/docker2aci
+- jonboulle/goaci
+
+* Rocket
+
+* Rocket
+
+Implementation of the App Container Spec
+
+- github.com/coreos/rocket
+- discovery
+- executor
+- metadata service
+
+* Rocket Internals
+
+- Written in Go
+
+  import (
+      "golang.org/x/crypto/openpgp"
+      "github.com/appc/spec/discovery"
+      "github.com/appc/spec/schema"
+      "github.com/mitchellh/ioprogress"
+      "github.com/peterbourgon/diskv"
+  )
+
+
+* Rocket Internals
+
+- Modular architecture
+- Execution divided into stages
+
+* stage0
+
+rkt binary
+
+- Discovery, retrieve application images
+- Set up container filesystems
+- Start the metadata service
+
+* stage1
+
+Execution environment for apps
+
+- Container rootfs + init binary
+- App process management, cgroups
+- Metadata service (container registration)
+
+* stage2
+
+Actual app execution
+
+* Rocket commands
+
+- fetch
+- run
+- enter
+- list
+- status
+- gc
+- trust
+
+* Rocket in action
+
+* Rocket Roadmap
+
+- Docker image support
+- Network plugins
+- Kubernetes
+
+* Docker Image Support
+
+The ability to run Docker images from any Docker repository
+
+  rkt run --from-docker redis:latest
+
+* Network Plugins
+
+All networking will be handled by plugins
+
+- Multiple interfaces
+- ipvlan, macvlan, veth, bridge
+- DHCP, ipv6, ipv4
+- flannel, weave
+
+* Kubernetes
+
+Teach Kubernetes how to deploy Application Containers
+
+- Refacter the kubelet

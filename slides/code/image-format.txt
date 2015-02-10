@@ -1,0 +1,7 @@
+hello-layout/
+├── manifest
+└── rootfs
+    └── bin
+        └── hello
+
+2 directories, 2 files
