@@ -83,7 +83,7 @@ Key-Type: default
 Subkey-Type: default
 Name-Real: Kelsey Hightower
 Name-Comment: ACI signing key
-Name-Email: kelsey.hightower@coreos.com
+Name-Email: brandon.philips@coreos.com
 Expire-Date: 0
 Passphrase: rocket
 %pubring rocket.pub
@@ -108,7 +108,7 @@ Export the public key.
 gpg --no-default-keyring --armor \
 --secret-keyring ./rocket.sec --keyring ./rocket.pub \
 --output pubkeys.gpg \
---export "<kelsey.hightower@coreos.com>"
+--export "<brandon.philips@coreos.com>"
 ```
 
 #### Create the detached signature
@@ -157,7 +157,7 @@ rkt fetch example.com/hello:0.0.1
 ### Trust the example.com signing key
 
 ```
-rkt trust --prefix example.com/hello
+rkt trust -insecure-allow-http --prefix example.com/hello
 ```
 
 ### Run the example.com/hello:0.0.1 ACI
